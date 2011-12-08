@@ -35,7 +35,7 @@ var parallelmap = function(fun, tasks, callback) {
 
     var remaining = ls.length;
     var workers = [];
-    /*var*/ workersOut = 0;
+    var workersOut = 0;
     var w;
     var results = [];
     for(w = 0; w < max_workers; w++) {

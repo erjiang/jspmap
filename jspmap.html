@@ -27,7 +27,7 @@
                     w.postMessage("hey");
                 }
                 catch (e) {
-                    cancelTimeout(boo);
+                    clearTimeout(boo);
                     failback(e);
                 }
             }
@@ -80,7 +80,7 @@
                 setTimeout(dotest, 100);
                 }, function(e) {
                 document.getElementById("status").innerHTML = 
-                "This isn't going to work on your browser: <tt>"+e.toString()+"</tt>";
+                "This isn't going to work on your browser: <tt>"+e+"</tt>";
             });
         </script>
         <script type="text/javascript">
