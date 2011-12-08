@@ -13,46 +13,75 @@
         <div id="result2"></div>
         <div id="time2"></div>
         <script>
-            var fun = function(x) {
-                var q = 3;
-                for(i = 0; i < x*300000; i++) {
-                    q *= 3;
-                    q = q % 10000000;
+            var testblob = function(callback, failback) {
+                var boo = setTimeout(failback, 1000);
+                try{
+                    var bb = new BlobBuilder();
+                    bb.append("self.onmessage = function(event) { self.postMessage('hello thar'); }");
+                    var enc = window.URL.createObjectURL(bb.getBlob());
+                    var w = new Worker(enc);
+                    w.onmessage = function () {
+                        clearTimeout(boo);
+                        callback();
+                    }
+                    w.postMessage("hey");
                 }
-                return q;
+                catch (e) {
+                    cancelTimeout(boo);
+                    failback(e);
+                }
             }
-            var list = [];
-            var start;
-            var diff;
-            for(var i = 0; i < 50; i++) {
-                list.push(i);
+            var dotest = function() {
+                var fun = function(x) {
+                    var q = 3;
+                    for(i = 0; i < x*300000; i++) {
+                        q *= 3;
+                        q = q % 10000000;
+                    }
+                    return q;
+                }
+                var list = [];
+                var start;
+                var diff;
+                for(var i = 0; i < 50; i++) {
+                    list.push(i);
+                }
+
+                map(fun, list);
+                document.getElementById("status").innerHTML = "Running for real now...";
+
+
+                var trial2 = function() {
+                    start = (new Date).getTime();
+                    parallelmap(fun, list,
+                    function(result2) {
+                        var diff = (new Date).getTime() - start;
+                        document.getElementById("time2"  ).innerHTML = diff+" msec";
+                        document.getElementById("result2").innerHTML = result2.toString();
+                    });
+
+                }
+
+                var trial1 = function() {
+                    start = (new Date).getTime();
+                    var result1 = map(fun, list);
+                    diff = (new Date).getTime() - start;
+                    document.getElementById("result1").innerHTML = result1.toString();
+                    document.getElementById("time1"  ).innerHTML = diff+" msec";
+
+                    setTimeout(trial2, 500);
+                }
+
+                setTimeout(trial1, 500);
             }
+            testblob(function() {
+                document.getElementById("status").innerHTML = "Wasting cycles...";
 
-            map(fun, list);
-            document.getElementById("status").innerHTML = "Running for real now...";
-
-            var trial2 = function() {
-                start = (new Date).getTime();
-                parallelmap(fun, list,
-                function(result2) {
-                    var diff = (new Date).getTime() - start;
-                    document.getElementById("time2"  ).innerHTML = diff+" msec";
-                    document.getElementById("result2").innerHTML = result2.toString();
-                });
-
-            }
-
-            var trial1 = function() {
-                start = (new Date).getTime();
-                var result1 = map(fun, list);
-                diff = (new Date).getTime() - start;
-                document.getElementById("result1").innerHTML = result1.toString();
-                document.getElementById("time1"  ).innerHTML = diff+" msec";
-
-                setTimeout(trial2, 500);
-            }
-
-            setTimeout(trial1, 500);
+                setTimeout(dotest, 100);
+                }, function(e) {
+                document.getElementById("status").innerHTML = 
+                "This isn't going to work on your browser: <tt>"+e.toString()+"</tt>";
+            });
         </script>
         <script type="text/javascript">
 

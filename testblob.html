@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <script>
+            var bb = new MozBlobBuilder();
+            bb.append("self.onmessage = function(event) { self.postMessage('hello thar'); }");
+            var enc = window.URL.createObjectURL(bb.getBlob());
+            var w = new Worker(enc);
+            w.onmessage = alert;
+        </script>
+    </head>
+    <body>
+        Go!
+    </body>
+</html>
