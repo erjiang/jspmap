@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+    <head>
+        <title>So I heard you liek parallelism</title>
+    </head>
+    <script src="jspmap.js"></script>
+    <body>
+        <div id="status"></div>
+        <strong>Regular map</strong>
+        <div id="result1"></div>
+        <div id="time1"></div>
+        <strong>Parallel map</strong>
+        <div id="result2"></div>
+        <div id="time2"></div>
+        <script>
+            var fun = function(x) {
+                var q = 3;
+                for(i = 0; i < x*300000; i++) {
+                    q *= 3;
+                    q = q % 10000000;
+                }
+                return q;
+            }
+            var list = [];
+            var start;
+            var diff;
+            for(var i = 0; i < 50; i++) {
+                list.push(i);
+            }
+
+            map(fun, list);
+            document.getElementById("status").innerHTML = "Running for real now...";
+
+            var trial2 = function() {
+                start = (new Date).getTime();
+                parallelmap(fun, list,
+                function(result2) {
+                    var diff = (new Date).getTime() - start;
+                    document.getElementById("time2"  ).innerHTML = diff+" msec";
+                    document.getElementById("result2").innerHTML = result2.toString();
+                });
+
+            }
+
+            var trial1 = function() {
+                start = (new Date).getTime();
+                var result1 = map(fun, list);
+                diff = (new Date).getTime() - start;
+                document.getElementById("result1").innerHTML = result1.toString();
+                document.getElementById("time1"  ).innerHTML = diff+" msec";
+
+                setTimeout(trial2, 500);
+            }
+
+            setTimeout(trial1, 500);
+        </script>
+        <script type="text/javascript">
+
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-870770-7']);
+            _gaq.push(['_setDomainName', '.ericjiang.com']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+             ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+             })();
+
+         </script> 
+    </body>
+</html>
