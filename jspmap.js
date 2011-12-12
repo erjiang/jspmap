@@ -64,3 +64,45 @@ var parallelmap = function(fun, tasks, callback) {
         workers[w].postMessage([ls.pop(), --remaining]);
     }
 }
+
+var parallelworkers = function(worker, tasks, callback) {
+    var ls = [];
+    var i = 0;
+    while(i < tasks.length) {
+        ls.push(tasks[i]);
+        i++;
+    }
+    var max_workers = (tasks.length < MAX_WORKERS) ? tasks.length : MAX_WORKERS;
+
+    var remaining = ls.length;
+    var workers = [];
+    var workerTasks = [];
+    var workersOut = 0;
+    var w;
+    var results = [];
+    for(w = 0; w < max_workers; w++) {
+        workers[w] = new Worker(worker);
+        workers[w].onmessage = (function () {
+            var myId = w;
+            return function(event) {
+                results[workerTasks[myId]] = event.data;
+                if(remaining > 0) {
+                    remaining --;
+                    workerTasks[myId] = remaining;
+                    workers[myId].postMessage(ls.pop());
+                }
+                else if(remaining === 0 && workersOut === 1) {
+                    callback(results);
+                } else {
+                    workersOut --;
+                }
+            }
+        })();
+    }
+    for(w = 0; w < max_workers; w++) {
+        workersOut++;
+        remaining--;
+        workerTasks[w] = remaining;
+        workers[w].postMessage(ls.pop());
+    }
+}

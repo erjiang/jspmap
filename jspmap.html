@@ -12,6 +12,9 @@
         <strong>Parallel map</strong>
         <div id="result2"></div>
         <div id="time2"></div>
+        <strong>Parallel workers</strong>
+        <div id="result3"></div>
+        <div id="time3"></div>
         <script>
             var testblob = function(callback, failback) {
                 var boo = setTimeout(failback, 1000);
@@ -35,7 +38,7 @@
                 var fun = function(x) {
                     var q = 3;
                     for(i = 0; i < x*300000; i++) {
-                        q *= 3;
+                        q *= 3.1;
                         q = q % 10000000;
                     }
                     return q;
@@ -58,6 +61,8 @@
                         var diff = (new Date).getTime() - start;
                         document.getElementById("time2"  ).innerHTML = diff+" msec";
                         document.getElementById("result2").innerHTML = result2.toString();
+
+                        setTimeout(trial3, 500);
                     });
 
                 }
@@ -70,6 +75,18 @@
                     document.getElementById("time1"  ).innerHTML = diff+" msec";
 
                     setTimeout(trial2, 500);
+                }
+
+                var trial3 = function() {
+                    document.getElementById("time3"  ).innerHTML = "starting...";
+                    start = (new Date).getTime();
+                    parallelworkers("modulo.js", list,
+                    function(result3) {
+                        var diff = (new Date).getTime() - start;
+                        document.getElementById("time3"  ).innerHTML = diff+" msec";
+                        document.getElementById("result3").innerHTML = result3.toString();
+                    });
+
                 }
 
                 setTimeout(trial1, 500);
